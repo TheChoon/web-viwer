@@ -33,9 +33,7 @@ body {
   scrollbar-width:thin;
   scrollbar-color:#cbd5e1 #f8fafc;
 }
-.sidebar::-webkit-scrollbar {
-  width:10px;
-}
+.sidebar::-webkit-scrollbar { width:10px; }
 .sidebar::-webkit-scrollbar-track {
   background:#f8fafc;
   border-radius:999px;
@@ -45,9 +43,7 @@ body {
   border-radius:999px;
   border:2px solid #f8fafc;
 }
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background:#94a3b8;
-}
+.sidebar::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
 
 .logo {
   text-align:center;
@@ -72,6 +68,7 @@ body {
   margin-bottom:22px;
   text-align:center;
 }
+
 .nav {
   display:flex;
   flex-direction:column;
@@ -89,8 +86,15 @@ body {
   line-height:1.4;
   transition:all .15s ease;
 }
-.nav-item:hover { background:#eff6ff; color:#1d4ed8; }
-.nav-item.active { background:#dbeafe; color:#1d4ed8; font-weight:700; }
+.nav-item:hover {
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+.nav-item.active {
+  background:#dbeafe;
+  color:#1d4ed8;
+  font-weight:700;
+}
 
 .nav-group-toggle {
   width:100%;
@@ -151,8 +155,14 @@ body {
   color:#166534;
   font-weight:700;
 }
-.nav-item-green:hover { background:#bbf7d0; color:#166534; }
-.nav-item-green.active { background:#22c55e; color:#fff; }
+.nav-item-green:hover {
+  background:#bbf7d0;
+  color:#166534;
+}
+.nav-item-green.active {
+  background:#22c55e;
+  color:#fff;
+}
 
 .nav-item-purple {
   width:100%;
@@ -216,10 +226,19 @@ body {
   color:#fff;
 }
 
-.main { padding:34px 36px 48px; }
-.sheet-panel { display:none; max-width:1280px; }
-.sheet-panel.active { display:block; }
-.sheet-header { margin-bottom:18px; }
+.main {
+  padding:34px 36px 48px;
+}
+.sheet-panel {
+  display:none;
+  max-width:1280px;
+}
+.sheet-panel.active {
+  display:block;
+}
+.sheet-header {
+  margin-bottom:18px;
+}
 .sheet-header h1 {
   margin:0;
   font-size:32px;
@@ -303,7 +322,11 @@ body {
   color:#374151;
   white-space:pre-wrap;
 }
-.note { color:#6b7280; font-size:13px; margin-top:6px; }
+.note {
+  color:#6b7280;
+  font-size:13px;
+  margin-top:6px;
+}
 
 .action-btn {
   border:1px solid #cbd5e1;
@@ -323,7 +346,10 @@ body {
 }
 .hidden { display:none !important; }
 
-.iframe-card { padding:0; overflow:hidden; }
+.iframe-card {
+  padding:0;
+  overflow:hidden;
+}
 .tool-frame {
   width:100%;
   height:calc(100vh - 180px);
@@ -769,7 +795,7 @@ body {
 <div class="modal-backdrop" id="menuModal">
   <div class="modal large">
     <div class="modal-title">메뉴 수정</div>
-    <div class="help-text" style="margin-bottom:12px;">top 은 상단 메뉴, bottom 은 하단 메뉴입니다. 작업배분표는 고정 메뉴이며, Q&A는 화면에서 자동 그룹 처리됩니다.</div>
+    <div class="help-text" style="margin-bottom:12px;">top 은 상단 메뉴, bottom 은 하단 메뉴입니다. 작업배분표는 고정 메뉴이며 항상 panelIndex 11입니다. Q&A는 화면에서 자동 그룹 처리됩니다.</div>
     <table class="menu-table">
       <thead>
         <tr>
@@ -878,9 +904,7 @@ let allocationData = {
   projects: []
 };
 let selectedProjectId = null;
-let navGroupState = {
-  qna: true
-};
+let navGroupState = { qna: true };
 
 const defaultMenus = [
   { title: "청현 공지사항", panelIndex: 0, location: "top", kind: "panel" },
@@ -1007,28 +1031,30 @@ function showSheet(index, title = "") {
 window.showSheet = showSheet;
 
 function ensureWorkMenu() {
-  const exists = menuData.some(m => Number(m.panelIndex) === 11);
-  if (!exists) {
-    menuData.push({
-      title: "작업배분표",
-      panelIndex: 11,
-      location: "bottom",
-      kind: "panel",
-      theme: "purple"
-    });
+  const existing = menuData.find(
+    m => Number(m.panelIndex) === 11 || (m.title || "").trim() === "작업배분표"
+  );
+
+  const fixedWorkMenu = {
+    title: "작업배분표",
+    panelIndex: 11,
+    location: "bottom",
+    kind: "panel",
+    theme: "purple"
+  };
+
+  menuData = menuData.filter(
+    m => !((m.title || "").trim() === "작업배분표" && Number(m.panelIndex) !== 11)
+  );
+
+  if (!existing) {
+    menuData.push(fixedWorkMenu);
   } else {
-    menuData = menuData.map(menu => {
-      if (Number(menu.panelIndex) === 11 || menu.title === "작업배분표") {
-        return {
-          ...menu,
-          title: "작업배분표",
-          panelIndex: 11,
-          location: "bottom",
-          kind: "panel",
-          theme: "purple"
-        };
+    menuData = menuData.map(m => {
+      if (Number(m.panelIndex) === 11 || (m.title || "").trim() === "작업배분표") {
+        return fixedWorkMenu;
       }
-      return menu;
+      return m;
     });
   }
 }
@@ -1040,11 +1066,8 @@ function createMenuButton(menu, isChild = false) {
   if (isChild) btn.classList.add("nav-sub-item");
 
   if (menu.location === "bottom") {
-    if (menu.theme === "purple") {
-      btn.classList.add("nav-item-purple");
-    } else {
-      btn.classList.add("nav-item-green");
-    }
+    if (menu.theme === "purple") btn.classList.add("nav-item-purple");
+    else btn.classList.add("nav-item-green");
   }
 
   btn.textContent = menu.title || "메뉴";
@@ -1089,12 +1112,7 @@ function renderMenus() {
   const qnaMenus = topMenus.filter(menu => isQnaMenu(menu));
   let normalTopMenus = topMenus.filter(menu => !isQnaMenu(menu));
 
-  normalTopMenus.sort((a, b) => {
-    const pa = getTopMenuPriority(a);
-    const pb = getTopMenuPriority(b);
-    if (pa !== pb) return pa - pb;
-    return 0;
-  });
+  normalTopMenus.sort((a, b) => getTopMenuPriority(a) - getTopMenuPriority(b));
 
   normalTopMenus.forEach(menu => {
     topNav.appendChild(createMenuButton(menu));
@@ -1107,9 +1125,7 @@ function renderMenus() {
     groupToggle.className = "nav-group-toggle" + (isExpanded ? " expanded" : "");
     groupToggle.type = "button";
     groupToggle.innerHTML = `
-      <span class="nav-group-label">
-        <span>Q&A</span>
-      </span>
+      <span class="nav-group-label"><span>Q&A</span></span>
       <span class="nav-group-arrow">▶</span>
     `;
     groupToggle.onclick = () => window.toggleNavGroup("qna");
@@ -1216,13 +1232,38 @@ function renderMenuTable() {
 
   menuData.forEach((menu, index) => {
     const tr = document.createElement("tr");
-    const isWork = Number(menu.panelIndex) === 11 || menu.title === "작업배분표";
+    const isWork = Number(menu.panelIndex) === 11 || (menu.title || "").trim() === "작업배분표";
+
     tr.innerHTML = `
-      <td><input data-field="location" data-index="${index}" value="${escapeHtml(isWork ? "bottom" : (menu.location || "top"))}" ${isWork ? "readonly" : ""}></td>
-      <td><input data-field="title" data-index="${index}" value="${escapeHtml(isWork ? "작업배분표" : (menu.title || ""))}" ${isWork ? "readonly" : ""}></td>
-      <td><input data-field="panelIndex" data-index="${index}" value="${escapeHtml(isWork ? 11 : (menu.panelIndex ?? ""))}" ${isWork ? "readonly" : ""}></td>
-      <td><input data-field="url" data-index="${index}" value="${escapeHtml(isWork ? "" : (menu.url || ""))}" ${isWork ? "readonly" : ""}></td>
-      <td><div class="menu-row-actions">${isWork ? '<span class="note">고정메뉴</span>' : `<button class="small-btn danger" onclick="removeMenuRow(${index})">삭제</button>`}</div></td>
+      <td>
+        <input data-field="location" data-index="${index}"
+          value="${escapeHtml(isWork ? "bottom" : (menu.location || "top"))}"
+          ${isWork ? "readonly" : ""}>
+      </td>
+      <td>
+        <input data-field="title" data-index="${index}"
+          value="${escapeHtml(isWork ? "작업배분표" : (menu.title || ""))}"
+          ${isWork ? "readonly" : ""}>
+      </td>
+      <td>
+        <input data-field="panelIndex" data-index="${index}"
+          value="${escapeHtml(String(isWork ? 11 : (menu.panelIndex ?? "")))}"
+          ${isWork ? "readonly" : ""}>
+      </td>
+      <td>
+        <input data-field="url" data-index="${index}"
+          value="${escapeHtml(isWork ? "" : (menu.url || ""))}"
+          ${isWork ? "readonly" : ""}>
+      </td>
+      <td>
+        <div class="menu-row-actions">
+          ${
+            isWork
+              ? '<span class="note">고정메뉴</span>'
+              : `<button class="small-btn danger" onclick="removeMenuRow(${index})">삭제</button>`
+          }
+        </div>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -1236,7 +1277,7 @@ window.addMenuRow = function(location) {
 window.removeMenuRow = function(index) {
   const target = menuData[index];
   if (!target) return;
-  if (Number(target.panelIndex) === 11 || target.title === "작업배분표") {
+  if (Number(target.panelIndex) === 11 || (target.title || "").trim() === "작업배분표") {
     alert("작업배분표 메뉴는 삭제할 수 없습니다.");
     return;
   }
@@ -1246,26 +1287,42 @@ window.removeMenuRow = function(index) {
 
 function syncMenuDataFromTable() {
   const rows = Array.from(document.querySelectorAll("#menuTableBody tr"));
-  const previousMenus = [...menuData];
 
   menuData = rows.map((row, index) => {
-    const getVal = (field) => row.querySelector(`[data-field="${field}"][data-index="${index}"]`)?.value?.trim() || "";
-    const title = getVal("title") || `메뉴 ${index + 1}`;
-    const location = getVal("location") || "top";
-    const url = getVal("url");
-    const existingMenu = previousMenus[index] || {};
-    const isWorkAllocation = title === "작업배분표" || Number(getVal("panelIndex") || 0) === 11;
+    const getVal = (field) =>
+      row.querySelector(`[data-field="${field}"][data-index="${index}"]`)?.value?.trim() || "";
+
+    const rawTitle = getVal("title");
+    const rawPanelIndex = getVal("panelIndex");
+    const rawLocation = getVal("location");
+    const rawUrl = getVal("url");
+
+    const isWorkAllocation =
+      rawTitle === "작업배분표" || Number(rawPanelIndex) === 11;
+
+    const panelIndex = isWorkAllocation
+      ? 11
+      : (rawPanelIndex === "" ? 0 : Number(rawPanelIndex));
+
+    const location = isWorkAllocation ? "bottom" : (rawLocation || "top");
+    const title = isWorkAllocation ? "작업배분표" : (rawTitle || `메뉴 ${index + 1}`);
 
     const item = {
-      title: isWorkAllocation ? "작업배분표" : title,
-      panelIndex: isWorkAllocation ? 11 : Number(getVal("panelIndex") || 0),
-      location: isWorkAllocation ? "bottom" : location,
-      kind: url ? "iframe" : (isWorkAllocation ? "panel" : (location === "bottom" ? "iframe" : "panel"))
+      title,
+      panelIndex,
+      location,
+      kind: rawUrl
+        ? "iframe"
+        : (isWorkAllocation ? "panel" : (location === "bottom" ? "iframe" : "panel"))
     };
 
-    if (url && !isWorkAllocation) item.url = url;
-    if (isWorkAllocation) item.theme = "purple";
-    else if (existingMenu.theme) item.theme = existingMenu.theme;
+    if (rawUrl && !isWorkAllocation) {
+      item.url = rawUrl;
+    }
+
+    if (isWorkAllocation) {
+      item.theme = "purple";
+    }
 
     return item;
   });
@@ -1316,7 +1373,7 @@ function syncContentFromEditor() {
 
 window.saveContentToFirebase = async function() {
   try {
-    if (!isAdmin(currentUser)) return alert("관리자만 저장할 수 있습니다.");
+    if (!isAdmin(currentUser)) return alert("관리자만 수정할 수 있습니다.");
     syncContentFromEditor();
     await setDoc(settingsRef, removeUndefinedDeep({ pageContents, menus: menuData, notice: noticeData }), { merge: true });
     renderAllContents();
@@ -1330,7 +1387,7 @@ window.saveContentToFirebase = async function() {
 
 window.saveNoticeToFirebase = async function() {
   try {
-    if (!isAdmin(currentUser)) return alert("관리자만 저장할 수 있습니다.");
+    if (!isAdmin(currentUser)) return alert("관리자만 수정할 수 있습니다.");
     noticeData = {
       title: document.getElementById("noticeFormTitle").value.trim() || "공지 제목",
       date: document.getElementById("noticeFormDate").value || "",
