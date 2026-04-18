@@ -1,31 +1,50 @@
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>문구통합 문서 뷰어</title>
+
+<style>
+body { margin:0; font-family:sans-serif; }
+.app { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+
+/* 📌 사이드바 */
+.sidebar { border-right:1px solid #ddd; padding:20px; }
+.nav-item {
+  display:block; width:100%;
+  padding:10px;
+  border:0;
+  background:none;
+  cursor:pointer;
+  text-align:left;
+}
+.nav-item.active {
+  background:#e0f2fe;
+  font-weight:bold;
+}
+
+/* 📌 메인 */
+.main { padding:20px; }
+
+/* 🔥 핵심 (이거 때문에 안되던거 해결) */
+.sheet-panel { display:none; }
+.sheet-panel.active { display:block; }
+
+</style>
 </head>
 
 <body>
 
-<!-- 📌 전체 앱 레이아웃 시작 -->
 <div class="app">
 
-  <!-- ============================= -->
-  <!-- 📌 사이드바 (카테고리 메뉴 영역) -->
-  <!-- ============================= -->
+  <!-- 📌 사이드바 -->
   <aside class="sidebar">
 
-    <!-- 로고 -->
-    <div class="logo">
-      <span class="logo-small">法務法人</span> 淸賢
-    </div>
+    <h2>淸賢</h2>
 
-    <!-- 서브 타이틀 -->
-    <div class="logo-sub">문구통합 문서 뷰어</div>
-
-    <!-- 📌 카테고리 네비게이션 -->
     <div class="nav">
-      <!-- 각 버튼 = 카테고리 -->
       <button class="nav-item active" onclick="showSheet(0)">청현 공지사항</button>
       <button class="nav-item" onclick="showSheet(1)">임대차</button>
       <button class="nav-item" onclick="showSheet(2)">임금</button>
@@ -40,207 +59,53 @@
 
   </aside>
 
-
-  <!-- ============================= -->
-  <!-- 📌 메인 콘텐츠 영역 -->
-  <!-- ============================= -->
+  <!-- 📌 메인 -->
   <main class="main">
 
-
-    <!-- ######################################## -->
-    <!-- 📌 카테고리 0: 청현 공지사항 -->
-    <!-- ######################################## -->
+    <!-- 0 -->
     <div class="sheet-panel active" data-index="0">
-
-      <!-- 페이지 제목 -->
-      <header class="sheet-header">
-        <h1>청현 공지사항</h1>
-      </header>
-
-      <!-- 큰 카드 영역 -->
-      <section class="major-card">
-
-        <!-- 카테고리 타이틀 -->
-        <div class="major-title">공지사항</div>
-
-        <div class="status-card">
-          <div class="badge blue">공지</div>
-
-          <p class="lead-line">청현 문구통합 문서 뷰어 공지사항</p>
-
-          <ul class="clean-list">
-            <li>여기에 공지사항 내용을 입력하세요.</li>
-            <li>최신 업데이트, 안내사항, 배포내용 등을 작성하면 됩니다.</li>
-          </ul>
-        </div>
-
-      </section>
+      <h1>청현 공지사항</h1>
+      <p>여기에 공지사항을 작성하세요.</p>
     </div>
 
-
-    <!-- ######################################## -->
-    <!-- 📌 카테고리 1: 임대차 -->
-    <!-- ######################################## -->
+    <!-- 1 -->
     <div class="sheet-panel" data-index="1">
-
-      <!-- 페이지 제목 -->
-      <header class="sheet-header">
-        <h1>임대차</h1>
-      </header>
-
-      <!-- 큰 카드 영역 -->
-      <section class="major-card">
-
-        <!-- 카테고리 타이틀 -->
-        <div class="major-title">임대차</div>
-
-
-        <!-- 📌 상태 1: 미진행 -->
-        <div class="status-card">
-          <div class="badge gray">미진행</div>
-
-          <!-- 핵심 요약 -->
-          <p class="lead-line">...</p>
-
-          <!-- 상세 리스트 -->
-          <ul class="clean-list">
-            <li>...</li>
-          </ul>
-        </div>
-
-
-        <!-- 📌 상태 2: 진행중 -->
-        <div class="status-card">
-          <div class="badge blue">배당요구종기일(진행중)</div>
-        </div>
-
-
-        <!-- 📌 상태 3: 경과 -->
-        <div class="status-card">
-          <div class="badge red">배당요구종기일(경과)</div>
-        </div>
-
-
-        <!-- 📌 상태 4: 낙찰자 인수분 -->
-        <div class="status-card">
-          <div class="badge green">낙찰자 인수분</div>
-        </div>
-
-      </section>
+      <h1>임대차</h1>
+      <p>임대차 내용</p>
     </div>
 
-
-
-    <!-- ######################################## -->
-    <!-- 📌 카테고리 2: 임금 -->
-    <!-- ######################################## -->
+    <!-- 2 -->
     <div class="sheet-panel" data-index="2">
-
-      <header class="sheet-header">
-        <h1>임금</h1>
-      </header>
-
-      <section class="major-card">
-
-        <div class="major-title">임금</div>
-
-        <!-- 📌 그룹: 개인 -->
-        <div class="group-title">개인</div>
-
-        <!-- 소분류 -->
-        <div class="sub-title">- 종기 내</div>
-        <p class="body-line">...</p>
-
-        <div class="sub-title">- 종기 후</div>
-        <p class="body-line">...</p>
-
-
-        <!-- 📌 그룹: 법인 -->
-        <div class="group-title">법인</div>
-
-        <div class="sub-title">- 종기 내</div>
-        <p class="body-line">...</p>
-
-      </section>
+      <h1>임금</h1>
     </div>
 
-
-
-    <!-- ######################################## -->
-    <!-- 📌 카테고리 3: 조세 -->
-    <!-- ######################################## -->
+    <!-- 3 -->
     <div class="sheet-panel" data-index="3">
-
-      <header class="sheet-header">
-        <h1>조세</h1>
-      </header>
-
-      <section class="major-card">
-        <div class="major-title">조세</div>
-        <p class="body-line">...</p>
-      </section>
-
+      <h1>조세</h1>
     </div>
 
-
-
-    <!-- ######################################## -->
-    <!-- 📌 카테고리 4: Q&A 계열 -->
-    <!-- ######################################## -->
-
-    <!-- 선순위임차인 -->
-    <div class="sheet-panel" data-index="4">
-      <!-- 📌 카테고리: 선순위임차인 Q&A -->
-    </div>
-
-    <!-- 보증서 -->
-    <div class="sheet-panel" data-index="5">
-      <!-- 📌 카테고리: 보증서 Q&A -->
-    </div>
-
-    <!-- 피담보채무 -->
-    <div class="sheet-panel" data-index="6">
-      <!-- 📌 카테고리: 피담보채무 Q&A -->
-    </div>
-
-    <!-- 매각대상 여부 -->
-    <div class="sheet-panel" data-index="7">
-      <!-- 📌 카테고리: 매각대상여부 Q&A -->
-    </div>
-
-    <!-- 열람자료 -->
-    <div class="sheet-panel" data-index="8">
-      <!-- 📌 카테고리: 열람자료 Q&A -->
-    </div>
-
-    <!-- 기계기구 -->
-    <div class="sheet-panel" data-index="9">
-      <!-- 📌 카테고리: 기계기구 Q&A -->
-    </div>
-
+    <!-- 나머지 -->
+    <div class="sheet-panel" data-index="4"><h1>선순위임차인Q&A</h1></div>
+    <div class="sheet-panel" data-index="5"><h1>보증서Q&A</h1></div>
+    <div class="sheet-panel" data-index="6"><h1>피담보채무Q&A</h1></div>
+    <div class="sheet-panel" data-index="7"><h1>매각대상여부Q&A</h1></div>
+    <div class="sheet-panel" data-index="8"><h1>열람자료Q&A</h1></div>
+    <div class="sheet-panel" data-index="9"><h1>기계기구Q&A</h1></div>
 
   </main>
 
 </div>
-<!-- 📌 전체 앱 끝 -->
 
 <script>
 function showSheet(index) {
-  document.querySelectorAll('.sheet-panel').forEach(function(el) {
-    el.classList.remove('active');
-  });
+  document.querySelectorAll('.sheet-panel').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-  document.querySelectorAll('.nav-item').forEach(function(el) {
-    el.classList.remove('active');
-  });
-
-  var panel = document.querySelector('.sheet-panel[data-index="' + index + '"]');
-  var nav = document.querySelectorAll('.nav-item')[index];
-
-  if (panel) panel.classList.add('active');
-  if (nav) nav.classList.add('active');
+  document.querySelector('.sheet-panel[data-index="'+index+'"]').classList.add('active');
+  document.querySelectorAll('.nav-item')[index].classList.add('active');
 }
 </script>
 
 </body>
 </html>
+```
