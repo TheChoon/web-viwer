@@ -54,7 +54,11 @@ body {
   margin-bottom:22px;
   text-align:center;
 }
-.nav { display:flex; flex-direction:column; gap:8px; }
+.nav {
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
 .nav-item {
   border:0;
   background:transparent;
@@ -70,20 +74,46 @@ body {
 .nav-item:hover { background:#eff6ff; color:#1d4ed8; }
 .nav-item.active { background:#dbeafe; color:#1d4ed8; font-weight:700; }
 
-.nav-group-title {
-  margin-top:12px;
-  margin-bottom:4px;
-  padding:6px 10px 2px;
-  font-size:12px;
+.nav-group-toggle {
+  width:100%;
+  border:0;
+  background:#f8fafc;
+  color:#475569;
+  text-align:left;
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  font-size:13px;
   font-weight:800;
-  color:#64748b;
-  letter-spacing:0.2px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  transition:all .15s ease;
+}
+.nav-group-toggle:hover {
+  background:#eef2ff;
+  color:#4338ca;
+}
+.nav-group-label {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.nav-group-arrow {
+  font-size:12px;
+  transition:transform .15s ease;
+}
+.nav-group-toggle.expanded .nav-group-arrow {
+  transform:rotate(90deg);
 }
 .nav-sub-group {
   display:flex;
   flex-direction:column;
   gap:6px;
   margin-bottom:8px;
+}
+.nav-sub-group.collapsed {
+  display:none;
 }
 .nav-sub-item {
   margin-left:12px;
@@ -163,7 +193,10 @@ body {
   color:#fff;
   border-color:#1d4ed8;
 }
-.admin-btn.primary:hover { background:#1e40af; color:#fff; }
+.admin-btn.primary:hover {
+  background:#1e40af;
+  color:#fff;
+}
 
 .main { padding:34px 36px 48px; }
 .sheet-panel { display:none; max-width:1280px; }
@@ -197,7 +230,6 @@ body {
   padding-bottom:10px;
   border-bottom:1px solid #eef2f7;
 }
-.major-title.normal-weight { font-weight:500; }
 .status-card {
   border:1px solid #edf2f7;
   border-radius:18px;
@@ -215,9 +247,6 @@ body {
   margin-bottom:12px;
 }
 .badge.gray { background:#f1f5f9; color:#475569; }
-.badge.blue { background:#dbeafe; color:#1d4ed8; }
-.badge.red { background:#fee2e2; color:#b91c1c; }
-.badge.green { background:#dcfce7; color:#1f2937; }
 .group-title {
   font-size:16px;
   font-weight:700;
@@ -257,6 +286,7 @@ body {
   white-space:pre-wrap;
 }
 .note { color:#6b7280; font-size:13px; margin-top:6px; }
+
 .action-btn {
   border:1px solid #cbd5e1;
   background:#fff;
@@ -321,8 +351,7 @@ body {
   margin-bottom:6px;
 }
 .form-row input,
-.form-row textarea,
-.form-row select {
+.form-row textarea {
   width:100%;
   border:1px solid #cbd5e1;
   border-radius:12px;
@@ -330,10 +359,6 @@ body {
   font-size:14px;
   outline:none;
   font-family:inherit;
-}
-.form-row textarea {
-  min-height:140px;
-  resize:vertical;
 }
 .help-text {
   font-size:12px;
@@ -364,12 +389,14 @@ body {
   cursor:pointer;
   font-weight:700;
 }
+
 .menu-table {
   width:100%;
   border-collapse:collapse;
   margin-top:8px;
 }
-.menu-table th, .menu-table td {
+.menu-table th,
+.menu-table td {
   border:1px solid #e2e8f0;
   padding:10px;
   vertical-align:top;
@@ -582,7 +609,6 @@ body {
   </aside>
 
   <main class="main">
-
     <div class="sheet-panel active" data-index="0">
       <header class="sheet-header">
         <h1>청현 공지사항</h1>
@@ -692,12 +718,10 @@ body {
           <button class="action-btn" onclick="createProjectPrompt()">배분표 생성</button>
           <button class="action-btn" onclick="saveAllocationData()">저장</button>
         </div>
-
         <div class="work-badges" id="workProjectBadges"></div>
         <div id="workAllocationBody"></div>
       </section>
     </div>
-
   </main>
 </div>
 
@@ -727,7 +751,7 @@ body {
 <div class="modal-backdrop" id="menuModal">
   <div class="modal large">
     <div class="modal-title">메뉴 수정</div>
-    <div class="help-text" style="margin-bottom:12px;">top 은 상단 메뉴, bottom 은 하단 메뉴입니다. 작업배분표는 고정 메뉴입니다.</div>
+    <div class="help-text" style="margin-bottom:12px;">top 은 상단 메뉴, bottom 은 하단 메뉴입니다. 작업배분표는 고정 메뉴이며, Q&A는 화면에서 자동 그룹 처리됩니다.</div>
     <table class="menu-table">
       <thead>
         <tr>
@@ -836,6 +860,9 @@ let allocationData = {
   projects: []
 };
 let selectedProjectId = null;
+let navGroupState = {
+  qna: true
+};
 
 const defaultMenus = [
   { title: "청현 공지사항", panelIndex: 0, location: "top", kind: "panel" },
@@ -876,9 +903,7 @@ const defaultPageContents = {
   },
   tax: {
     majorTitle: "조세",
-    html: `
-      <p class="body-line">경매열람시 교부청구 순서대로 기입(재산세, 종부세 등 선순위 반영 분 먼저 기재)</p>
-    `
+    html: `<p class="body-line">경매열람시 교부청구 순서대로 기입(재산세, 종부세 등 선순위 반영 분 먼저 기재)</p>`
   },
   tenantqa: {
     majorTitle: "선순위임차인Q&A",
@@ -1017,6 +1042,11 @@ function createMenuButton(menu, isChild = false) {
   return btn;
 }
 
+window.toggleNavGroup = function(groupKey) {
+  navGroupState[groupKey] = !navGroupState[groupKey];
+  renderMenus();
+};
+
 function renderMenus() {
   ensureWorkMenu();
 
@@ -1036,13 +1066,22 @@ function renderMenus() {
   });
 
   if (qnaMenus.length) {
-    const groupTitle = document.createElement("div");
-    groupTitle.className = "nav-group-title";
-    groupTitle.textContent = "Q&A";
-    topNav.appendChild(groupTitle);
+    const isExpanded = !!navGroupState.qna;
+
+    const groupToggle = document.createElement("button");
+    groupToggle.className = "nav-group-toggle" + (isExpanded ? " expanded" : "");
+    groupToggle.type = "button";
+    groupToggle.innerHTML = `
+      <span class="nav-group-label">
+        <span>Q&A</span>
+      </span>
+      <span class="nav-group-arrow">▶</span>
+    `;
+    groupToggle.onclick = () => window.toggleNavGroup("qna");
+    topNav.appendChild(groupToggle);
 
     const groupWrap = document.createElement("div");
-    groupWrap.className = "nav-sub-group";
+    groupWrap.className = "nav-sub-group" + (isExpanded ? "" : " collapsed");
 
     qnaMenus.forEach(menu => {
       groupWrap.appendChild(createMenuButton(menu, true));
@@ -1523,13 +1562,6 @@ onSnapshot(allocationRef, snap => {
 
   renderAllocationUI();
 });
-
-window.openContentEditor = window.openContentEditor;
-window.openMenuEditor = window.openMenuEditor;
-window.openNoticeEditor = window.openNoticeEditor;
-window.closeContentEditor = window.closeContentEditor;
-window.closeMenuEditor = window.closeMenuEditor;
-window.closeNoticeEditor = window.closeNoticeEditor;
 
 initEditors();
 renderMenus();
