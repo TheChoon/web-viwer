@@ -402,12 +402,10 @@ body {
             </div>
           </div>
 
-          <p class="lead-line" id="noticeTitle">문구통합 문서 뷰어 안내</p>
-          <div class="note" id="noticeDate">기준일: 2026-04-18</div>
+          <p class="lead-line" id="noticeTitle">공지 불러오는 중...</p>
+          <div class="note" id="noticeDate">기준일: -</div>
           <ul class="clean-list" id="noticeItems">
-            <li>좌측 메뉴에서 문구 카테고리를 선택하여 확인할 수 있습니다.</li>
-            <li>공지사항은 첫 화면으로 표시됩니다.</li>
-            <li>여기에 최신 업데이트, 배포 안내, 유의사항을 작성하면 됩니다.</li>
+            <li>notice.json을 불러오는 중입니다.</li>
           </ul>
         </div>
       </section>
@@ -575,14 +573,10 @@ body {
 </div>
 
 <script>
-const noticeData = {
-  title: "문구통합 문서 뷰어 안내",
-  date: "2026-04-18",
-  items: [
-    "좌측 메뉴에서 문구 카테고리를 선택하여 확인할 수 있습니다.",
-    "공지사항은 첫 화면으로 표시됩니다.",
-    "여기에 최신 업데이트, 배포 안내, 유의사항을 작성하면 됩니다."
-  ]
+let noticeData = {
+  title: "",
+  date: "",
+  items: []
 };
 
 function showSheet(index) {
@@ -613,6 +607,35 @@ function renderNotice() {
     li.textContent = item;
     list.appendChild(li);
   });
+
+  if (!noticeData.items || noticeData.items.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = '공지 내용이 없습니다.';
+    list.appendChild(li);
+  }
+}
+
+async function loadNoticeJson() {
+  try {
+    const response = await fetch('notice.json', { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error('notice.json 로드 실패');
+    }
+
+    const data = await response.json();
+
+    noticeData.title = data.title || '';
+    noticeData.date = data.date || '';
+    noticeData.items = Array.isArray(data.items) ? data.items : [];
+
+    renderNotice();
+  } catch (error) {
+    console.error(error);
+    noticeData.title = '공지 불러오기 실패';
+    noticeData.date = '';
+    noticeData.items = ['notice.json 파일을 확인하세요.'];
+    renderNotice();
+  }
 }
 
 function openNoticeEditor() {
@@ -655,7 +678,7 @@ function downloadNoticeJson() {
   URL.revokeObjectURL(url);
 }
 
-renderNotice();
+loadNoticeJson();
 </script>
 </body>
 </html>
