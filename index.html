@@ -83,6 +83,118 @@ body {
 .nav-item-green:hover { background:#bbf7d0; color:#166534; }
 .nav-item-green.active { background:#22c55e; color:#fff; }
 
+.nav-item-red {
+  width:100%;
+  background:#fee2e2;
+  color:#b91c1c;
+  font-weight:700;
+}
+.nav-item-red:hover { background:#fecaca; color:#991b1b; }
+.nav-item-red.active { background:#dc2626; color:#fff; }
+
+.allocation-toolbar {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:18px;
+}
+.project-badge-wrap {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  margin-bottom:18px;
+}
+.project-badge {
+  border:1px solid #fecaca;
+  background:#fff5f5;
+  color:#b91c1c;
+  border-radius:999px;
+  padding:9px 14px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.project-badge:hover {
+  background:#fee2e2;
+}
+.project-badge.active {
+  background:#dc2626;
+  color:#fff;
+  border-color:#dc2626;
+}
+.allocation-summary {
+  font-size:13px;
+  color:#64748b;
+  margin-bottom:12px;
+}
+.allocation-table-wrap {
+  overflow:auto;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  background:#fff;
+}
+.allocation-table {
+  width:100%;
+  min-width:880px;
+  border-collapse:collapse;
+}
+.allocation-table th,
+.allocation-table td {
+  border-bottom:1px solid #e5e7eb;
+  border-right:1px solid #f1f5f9;
+  padding:10px 12px;
+  text-align:left;
+  vertical-align:middle;
+}
+.allocation-table th:last-child,
+.allocation-table td:last-child {
+  border-right:0;
+}
+.allocation-table thead th {
+  background:#f8fafc;
+  font-size:13px;
+  font-weight:700;
+  color:#334155;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+.allocation-table tbody tr:hover {
+  background:#fcfcfd;
+}
+.allocation-name-cell {
+  min-width:120px;
+  font-weight:700;
+  color:#0f172a;
+  background:#fff;
+}
+.allocation-input {
+  width:100%;
+  min-width:120px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:13px;
+  font-family:inherit;
+  background:#fff;
+}
+.allocation-input[readonly] {
+  background:#f8fafc;
+  color:#64748b;
+}
+.allocation-empty {
+  padding:38px 18px;
+  text-align:center;
+  color:#64748b;
+  border:1px dashed #cbd5e1;
+  border-radius:18px;
+  background:#fff;
+}
+
+
 .admin-box {
   margin-top:0;
   margin-bottom:14px;
@@ -565,6 +677,25 @@ body {
       </section>
     </div>
 
+    <div class="sheet-panel" data-index="11">
+      <header class="sheet-header">
+        <h1>작업배분표</h1>
+        <div class="sheet-tools">
+          <button class="action-btn allocation-admin-only hidden" onclick="createAllocationProject()">배분표 생성</button>
+          <button class="action-btn allocation-admin-only hidden" onclick="addAllocationColumn()">항목 추가</button>
+          <button class="action-btn allocation-admin-only hidden" onclick="saveAllocationData()">저장</button>
+          <button class="action-btn allocation-admin-only hidden" onclick="deleteAllocationProject()">프로젝트 삭제</button>
+        </div>
+      </header>
+      <section class="major-card">
+        <div class="major-title">작업배분표</div>
+        <div class="allocation-summary" id="allocationSummary">프로젝트를 선택하세요.</div>
+        <div class="project-badge-wrap" id="allocationProjectBadges"></div>
+        <div id="allocationTableArea"></div>
+      </section>
+    </div>
+
+
   </main>
 </div>
 
@@ -696,7 +827,8 @@ const defaultMenus = [
   { title: "매각대상여부Q&A", panelIndex: 7, location: "top", kind: "panel" },
   { title: "열람자료Q&A", panelIndex: 8, location: "top", kind: "panel" },
   { title: "기계기구Q&A", panelIndex: 9, location: "top", kind: "panel" },
-  { title: "주택·상가 소액 조회", panelIndex: 10, location: "bottom", kind: "iframe", url: "주택상가 소액.html" }
+  { title: "주택·상가 소액 조회", panelIndex: 10, location: "bottom", kind: "iframe", url: "주택상가 소액.html" },
+  { title: "작업배분표", panelIndex: 11, location: "bottom", kind: "panel", theme: "red" }
 ];
 
 const defaultPageContents = {
@@ -788,6 +920,30 @@ const defaultPageContents = {
   }
 };
 
+const DEFAULT_ALLOCATION_MEMBERS = [
+  "남기범",
+  "김학년",
+  "이중근",
+  "이동훈",
+  "임기철",
+  "우창균",
+  "정동춘",
+  "김현경",
+  "김소라",
+  "손성민",
+  "심아영"
+];
+
+function createEmptyAllocationData() {
+  return {
+    members: [...DEFAULT_ALLOCATION_MEMBERS],
+    projects: []
+  };
+}
+
+let allocationData = createEmptyAllocationData();
+let selectedAllocationProjectId = null;
+
 let menuData = [...defaultMenus];
 let noticeData = {
   title: "공지 제목",
@@ -797,6 +953,7 @@ let noticeData = {
 let pageContents = structuredClone(defaultPageContents);
 
 const settingsRef = doc(db, "sharedPages", "mainSettings");
+const allocationRef = doc(db, "sharedPages", "workAllocation");
 
 function isAdmin(user) {
   return !!(user && ADMIN_EMAILS.includes((user.email || "").toLowerCase()));
@@ -812,6 +969,8 @@ function updateAdminUI() {
   document.getElementById("menuEditBtn").classList.toggle("hidden", !admin);
   document.getElementById("noticeEditBtn").classList.toggle("hidden", !admin);
   document.querySelectorAll(".panel-edit-btn").forEach(btn => btn.classList.toggle("hidden", !admin));
+  document.querySelectorAll(".allocation-admin-only").forEach(btn => btn.classList.toggle("hidden", !admin));
+  renderAllocationPanel();
 }
 
 function escapeHtml(value) {
@@ -832,6 +991,215 @@ function showSheet(index, title = "") {
 }
 window.showSheet = showSheet;
 
+
+function normalizeAllocationData(data) {
+  const normalized = createEmptyAllocationData();
+  const members = Array.isArray(data?.members) && data.members.length ? data.members : [...DEFAULT_ALLOCATION_MEMBERS];
+  normalized.members = members;
+
+  const incomingProjects = Array.isArray(data?.projects) ? data.projects : [];
+  normalized.projects = incomingProjects.map((project, projectIndex) => {
+    const safeColumns = Array.isArray(project?.columns)
+      ? project.columns.map(v => String(v || "").trim()).filter(Boolean)
+      : [];
+
+    const rowMap = new Map(
+      Array.isArray(project?.rows)
+        ? project.rows.map(row => [String(row?.name || ""), row])
+        : []
+    );
+
+    const rows = normalized.members.map(name => {
+      const srcRow = rowMap.get(name) || {};
+      const values = {};
+      safeColumns.forEach(column => {
+        values[column] = srcRow?.values && Object.prototype.hasOwnProperty.call(srcRow.values, column)
+          ? String(srcRow.values[column] ?? "")
+          : "";
+      });
+      return { name, values };
+    });
+
+    return {
+      id: project?.id || `allocation_project_${Date.now()}_${projectIndex}`,
+      name: String(project?.name || `프로젝트 ${projectIndex + 1}`).trim(),
+      columns: safeColumns,
+      rows
+    };
+  });
+
+  return normalized;
+}
+
+function getSelectedAllocationProject() {
+  if (!allocationData.projects.length) return null;
+  let project = allocationData.projects.find(p => p.id === selectedAllocationProjectId);
+  if (!project) {
+    project = allocationData.projects[0];
+    selectedAllocationProjectId = project.id;
+  }
+  return project;
+}
+
+function escapeAttr(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeJsString(value) {
+  return String(value || "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'")
+    .replaceAll('"', '&quot;')
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function renderAllocationPanel() {
+  const badgeWrap = document.getElementById("allocationProjectBadges");
+  const summary = document.getElementById("allocationSummary");
+  const tableArea = document.getElementById("allocationTableArea");
+
+  if (!badgeWrap || !summary || !tableArea) return;
+
+  const admin = isAdmin(currentUser);
+  badgeWrap.innerHTML = "";
+
+  allocationData.projects.forEach(project => {
+    const btn = document.createElement("button");
+    btn.className = "project-badge";
+    if (project.id === selectedAllocationProjectId) btn.classList.add("active");
+    btn.textContent = project.name;
+    btn.addEventListener("click", () => {
+      selectedAllocationProjectId = project.id;
+      renderAllocationPanel();
+    });
+    badgeWrap.appendChild(btn);
+  });
+
+  const project = getSelectedAllocationProject();
+
+  if (!project) {
+    summary.textContent = admin
+      ? "프로젝트가 없습니다. ‘배분표 생성’ 버튼으로 첫 프로젝트를 만들어주세요."
+      : "등록된 프로젝트가 없습니다.";
+    tableArea.innerHTML = '<div class="allocation-empty">표시할 작업배분표가 없습니다.</div>';
+    return;
+  }
+
+  summary.textContent = `현재 프로젝트: ${project.name} · 인원 ${allocationData.members.length}명 · 항목 ${project.columns.length}개`;
+
+  const headerCells = ['<th class="allocation-name-cell">이름</th>']
+    .concat(project.columns.map(column => `<th>${escapeHtml(column)}</th>`))
+    .join("");
+
+  const bodyRows = project.rows.map((row, rowIndex) => {
+    const valueCells = project.columns.map(column => {
+      const value = row.values?.[column] ?? "";
+      const readonly = admin ? "" : "readonly";
+      return `<td><input class="allocation-input" ${readonly} value="${escapeAttr(value)}" oninput="updateAllocationCell('${escapeJsString(project.id)}', ${rowIndex}, '${escapeJsString(column)}', this.value)"></td>`;
+    }).join("");
+
+    return `<tr><td class="allocation-name-cell">${escapeHtml(row.name)}</td>${valueCells}</tr>`;
+  }).join("");
+
+  tableArea.innerHTML = `
+    <div class="allocation-table-wrap">
+      <table class="allocation-table">
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+window.createAllocationProject = function() {
+  if (!isAdmin(currentUser)) return alert("관리자만 생성할 수 있습니다.");
+  const projectName = prompt("프로젝트 이름을 입력하세요.");
+  if (!projectName) return;
+
+  const trimmedName = projectName.trim();
+  if (!trimmedName) return alert("프로젝트 이름을 입력해주세요.");
+
+  if (allocationData.projects.some(project => project.name === trimmedName)) {
+    return alert("같은 이름의 프로젝트가 이미 있습니다.");
+  }
+
+  const project = {
+    id: "allocation_project_" + Date.now(),
+    name: trimmedName,
+    columns: [],
+    rows: allocationData.members.map(name => ({
+      name,
+      values: {}
+    }))
+  };
+
+  allocationData.projects.push(project);
+  selectedAllocationProjectId = project.id;
+  renderAllocationPanel();
+};
+
+window.addAllocationColumn = function() {
+  if (!isAdmin(currentUser)) return alert("관리자만 수정할 수 있습니다.");
+  const project = getSelectedAllocationProject();
+  if (!project) return alert("먼저 프로젝트를 생성해주세요.");
+
+  const columnName = prompt("추가할 항목 이름을 입력하세요.");
+  if (!columnName) return;
+
+  const trimmedName = columnName.trim();
+  if (!trimmedName) return alert("항목 이름을 입력해주세요.");
+
+  if (project.columns.includes(trimmedName)) {
+    return alert("같은 이름의 항목이 이미 있습니다.");
+  }
+
+  project.columns.push(trimmedName);
+  project.rows.forEach(row => {
+    row.values[trimmedName] = "";
+  });
+
+  renderAllocationPanel();
+};
+
+window.updateAllocationCell = function(projectId, rowIndex, columnName, value) {
+  const project = allocationData.projects.find(p => p.id === projectId);
+  if (!project) return;
+  if (!project.rows[rowIndex]) return;
+  if (!project.rows[rowIndex].values) project.rows[rowIndex].values = {};
+  project.rows[rowIndex].values[columnName] = value;
+};
+
+window.deleteAllocationProject = function() {
+  if (!isAdmin(currentUser)) return alert("관리자만 삭제할 수 있습니다.");
+  const project = getSelectedAllocationProject();
+  if (!project) return alert("삭제할 프로젝트가 없습니다.");
+
+  if (!confirm(`'${project.name}' 프로젝트를 삭제할까요?`)) return;
+
+  allocationData.projects = allocationData.projects.filter(item => item.id !== project.id);
+  selectedAllocationProjectId = allocationData.projects[0]?.id || null;
+  renderAllocationPanel();
+};
+
+window.saveAllocationData = async function() {
+  try {
+    if (!isAdmin(currentUser)) return alert("관리자만 저장할 수 있습니다.");
+    allocationData = normalizeAllocationData(allocationData);
+    await setDoc(allocationRef, allocationData, { merge: true });
+    renderAllocationPanel();
+    alert("작업배분표가 저장되었습니다.");
+  } catch (error) {
+    console.error("작업배분표 저장 실패:", error);
+    alert("작업배분표 저장 실패: " + (error.message || error));
+  }
+};
+
+
 function renderMenus() {
   const topNav = document.getElementById("topNav");
   const bottomNav = document.getElementById("bottomNav");
@@ -843,7 +1211,7 @@ function renderMenus() {
     btn.className = "nav-item";
 
     if (menu.location === "bottom") {
-      btn.classList.add("nav-item-green");
+      btn.classList.add(menu.theme === "red" ? "nav-item-red" : "nav-item-green");
     }
 
     btn.textContent = menu.title || "메뉴";
@@ -889,7 +1257,7 @@ function renderAllContents() {
     const key = menu.title;
     const panelIndex = Number(menu.panelIndex || 0);
 
-    if (panelIndex === 0 || panelIndex === 10) return;
+    if (panelIndex === 0 || panelIndex === 10 || panelIndex === 11) return;
 
     let panel = document.querySelector(`.sheet-panel[data-index="${panelIndex}"]`);
 
@@ -937,6 +1305,8 @@ function renderAllContents() {
   if (activeMenu) {
     showSheet(Number(activeMenu.panelIndex), activeMenu.title);
   }
+
+  renderAllocationPanel();
 }
 
 function initEditors() {
@@ -1012,11 +1382,22 @@ window.removeMenuRow = function(index) {
 };
 function syncMenuDataFromTable() {
   const rows = Array.from(document.querySelectorAll("#menuTableBody tr"));
+  const previousMenus = [...menuData];
   menuData = rows.map((row, index) => {
     const getVal = (field) => row.querySelector(`[data-field="${field}"][data-index="${index}"]`)?.value?.trim() || "";
+    const title = getVal("title") || `메뉴 ${index+1}`;
     const location = getVal("location") || "top";
     const url = getVal("url");
-    return { title: getVal("title") || `메뉴 ${index+1}`, panelIndex: Number(getVal("panelIndex") || 0), location, kind: url ? "iframe" : (location === "bottom" ? "iframe" : "panel"), url };
+    const existingMenu = previousMenus[index] || {};
+    const isWorkAllocation = title === "작업배분표";
+    return {
+      title,
+      panelIndex: Number(getVal("panelIndex") || 0),
+      location,
+      kind: url ? "iframe" : (isWorkAllocation ? "panel" : (location === "bottom" ? "iframe" : "panel")),
+      url,
+      theme: isWorkAllocation ? "red" : existingMenu.theme
+    };
   });
 }
 window.saveMenusToFirebase = async function() {
@@ -1132,6 +1513,11 @@ async function ensureInitialData() {
         pageContents: defaultPageContents
       });
     }
+
+    const allocationSnap = await getDoc(allocationRef);
+    if (!allocationSnap.exists()) {
+      await setDoc(allocationRef, createEmptyAllocationData());
+    }
   } catch (error) {
     console.error("초기 데이터 생성 실패:", error);
   }
@@ -1154,6 +1540,19 @@ onSnapshot(settingsRef, snap => {
   renderMenus();
   renderNotice();
   renderAllContents();
+});
+
+
+onSnapshot(allocationRef, snap => {
+  const data = snap.data() || createEmptyAllocationData();
+  allocationData = normalizeAllocationData(data);
+  if (!selectedAllocationProjectId && allocationData.projects.length) {
+    selectedAllocationProjectId = allocationData.projects[0].id;
+  }
+  if (selectedAllocationProjectId && !allocationData.projects.some(project => project.id === selectedAllocationProjectId)) {
+    selectedAllocationProjectId = allocationData.projects[0]?.id || null;
+  }
+  renderAllocationPanel();
 });
 
 initEditors();
