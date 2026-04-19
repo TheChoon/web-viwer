@@ -138,43 +138,47 @@
       <p></p>
     </div>
 
-    <div class="panel">
+  <div class="panel">
   <div class="form-grid">
     <div class="field">
       <label for="metroSelect">특별시 / 광역시 / 도</label>
       <select class="input" id="metroSelect"></select>
     </div>
+
     <div class="field">
       <label for="citySelect">시 / 군 / 구</label>
       <select class="input" id="citySelect"></select>
     </div>
+
     <div class="field">
       <label for="dongSelect">동 / 리 / 읍 / 면</label>
       <select class="input" id="dongSelect"></select>
     </div>
-   <div class="field">
-  <label for="settingDateText">근저당권 설정일</label>
 
-  <div class="date-input-wrap">
-    <input
-      class="input"
-      id="settingDateText"
-      type="text"
-      inputmode="numeric"
-      placeholder="최초 설정일 입력칸에 날짜를 입력하세요"
-      value="2023-02-21"
-      autocomplete="off"
-    />
-    <input
-      id="settingDatePicker"
-      type="date"
-      value="2023-02-21"
-      tabindex="-1"
-      aria-hidden="true"
-    />
-    <button type="button" class="date-picker-btn" id="openDatePicker">📅</button>
-  </div>
-    <button class="btn" id="searchBtn">조회하기</button>
+    <div class="field">
+      <label for="settingDateText">근저당권 설정일</label>
+      <div class="date-input-wrap">
+        <input
+          class="input"
+          id="settingDateText"
+          type="text"
+          inputmode="numeric"
+          placeholder="최초 설정일 입력칸에 날짜를 입력하세요"
+          value="2023-02-21"
+          autocomplete="off"
+        />
+        <input
+          id="settingDatePicker"
+          type="date"
+          value="2023-02-21"
+          tabindex="-1"
+          aria-hidden="true"
+        />
+        <button type="button" class="date-picker-btn" id="openDatePicker">📅</button>
+      </div>
+    </div>
+
+    <button class="btn" id="searchBtn" type="button">조회하기</button>
   </div>
 </div>
 
@@ -192,7 +196,7 @@
     margin-top:8px;
     text-align:center;
     font-size:11px;
-    color#d1d5db;
+    color:#d1d5db;
   }
 </style>
   <script>
