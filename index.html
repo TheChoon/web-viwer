@@ -188,7 +188,27 @@ body {
   background:#c084fc;
   color:#fff;
 }
+.nav-item-notice {
+  background:#eff6ff;
+  color:#1d4ed8;
+  border:1px solid #bfdbfe;
+  border-radius:14px;
+  font-weight:800;
+  padding:13px 14px;
+  box-shadow:0 6px 16px rgba(59,130,246,0.08);
+  margin-bottom:6px;
+}
 
+.nav-item-notice:hover {
+  background:#dbeafe;
+  color:#1e40af;
+}
+
+.nav-item-notice.active {
+  background:#3b82f6;
+  color:#ffffff;
+  border-color:#3b82f6;
+}
 .admin-box {
   margin-top:0;
   margin-bottom:14px;
@@ -1147,7 +1167,13 @@ function createMenuButton(menu, isChild = false) {
     else btn.classList.add("nav-item-green");
   }
 
-  btn.textContent = menu.title || "메뉴";
+  // 공지사항 강조
+  if (Number(menu.panelIndex) === 0) {
+    btn.classList.add("nav-item-notice");
+    btn.textContent = "📢 " + (menu.title || "공지사항");
+  } else {
+    btn.textContent = menu.title || "메뉴";
+  }
 
   btn.addEventListener("click", () => {
     if (menu.kind === "iframe" && menu.url) {
