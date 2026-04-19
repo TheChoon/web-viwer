@@ -67,6 +67,7 @@ body {
   color:#6b7280;
   margin-bottom:22px;
   text-align:center;
+  line-height:1.6;
 }
 
 .nav {
@@ -293,6 +294,7 @@ body {
   margin-bottom:12px;
 }
 .badge.gray { background:#f1f5f9; color:#475569; }
+
 .group-title {
   font-size:16px;
   font-weight:700;
@@ -305,19 +307,17 @@ body {
   color:#475569;
   margin:10px 0 6px;
 }
-.body-line {
-  margin:7px 0 12px;
-  line-height:1.7;
-  font-size:15px;
-  color:#374151;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
 .lead-line {
   margin:8px 0 10px;
   line-height:1.85;
-  font-size:15px;
   color:#0f172a;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.body-line {
+  margin:7px 0 12px;
+  line-height:1.7;
+  color:#374151;
   white-space:pre-wrap;
   word-break:break-word;
 }
@@ -494,19 +494,23 @@ body {
 }
 
 .ql-editor .ql-size-small,
-.rich-preview .ql-size-small {
-  font-size: 12px;
+.rich-preview .ql-size-small,
+#noticeItems .ql-size-small {
+  font-size:12px !important;
 }
 
 .ql-editor .ql-size-large,
-.rich-preview .ql-size-large {
-  font-size: 18px;
+.rich-preview .ql-size-large,
+#noticeItems .ql-size-large {
+  font-size:18px !important;
 }
 
 .ql-editor .ql-size-huge,
-.rich-preview .ql-size-huge {
-  font-size: 24px;
+.rich-preview .ql-size-huge,
+#noticeItems .ql-size-huge {
+  font-size:24px !important;
 }
+
 .ql-toolbar.ql-snow,
 .ql-container.ql-snow {
   border-color:#cbd5e1;
@@ -518,11 +522,15 @@ body {
   border-radius:12px 12px 0 0;
   background:#fff;
 }
+
+.rich-preview {
+  font-size:15px;
+  color:#374151;
+}
 .rich-preview p {
   margin:7px 0 12px;
   line-height:1.7;
-  
-  color:#374151;
+  color:inherit;
 }
 .rich-preview ul,
 .rich-preview ol {
@@ -532,9 +540,32 @@ body {
 .rich-preview li {
   margin:7px 0 10px 0;
   line-height:1.8;
-  color:#374151;
+  color:inherit;
 }
 .rich-preview strong {
+  font-weight:700;
+}
+
+#noticeItems {
+  font-size:15px;
+  color:#374151;
+}
+#noticeItems p {
+  margin:7px 0 12px;
+  line-height:1.7;
+  color:inherit;
+}
+#noticeItems ul,
+#noticeItems ol {
+  margin:8px 0 12px 0;
+  padding-left:20px;
+}
+#noticeItems li {
+  margin:7px 0 10px 0;
+  line-height:1.8;
+  color:inherit;
+}
+#noticeItems strong {
   font-weight:700;
 }
 
@@ -665,9 +696,9 @@ body {
       <span class="logo-small">法務法人</span> 淸賢
     </div>
     <div class="logo-sub">
-  권리분석 업무 플랫폼<br>
-  정확하고 빠른 실무 지원 시스템
-</div>
+      권리분석 업무 플랫폼<br>
+      정확하고 빠른 실무 지원 시스템
+    </div>
 
     <div class="admin-box">
       <p class="admin-status" id="adminStatus">관리자 로그인 전</p>
@@ -813,7 +844,7 @@ body {
     <div class="form-row">
       <label>내용</label>
       <div id="noticeEditor" style="height:220px;"></div>
-      <div class="help-text">굵게, 색상, 목록을 바로 적용할 수 있습니다.</div>
+      <div class="help-text">굵게, 색상, 글자크기, 목록, 정렬, 링크를 바로 적용할 수 있습니다.</div>
     </div>
     <div class="modal-actions">
       <button class="secondary-btn" onclick="closeNoticeEditor()">닫기</button>
@@ -856,7 +887,7 @@ body {
       <label for="contentMajorTitle">상단 제목</label>
       <input id="contentMajorTitle" type="text" placeholder="예: 임대차">
     </div>
-    <div class="help-text" style="margin-bottom:12px;">굵게, 색상, 글머리표, 번호목록, 링크까지 적용할 수 있습니다.</div>
+    <div class="help-text" style="margin-bottom:12px;">굵게, 색상, 글자크기, 글머리표, 번호목록, 정렬, 링크까지 적용할 수 있습니다.</div>
     <div id="contentEditor" style="height:380px;"></div>
     <div class="modal-actions">
       <button class="secondary-btn" onclick="closeContentEditor()">닫기</button>
@@ -1224,7 +1255,23 @@ function renderMenus() {
 function renderNotice() {
   document.getElementById("noticeTitle").textContent = noticeData.title || "공지 제목";
   document.getElementById("noticeDate").textContent = "기준일: " + (noticeData.date || "-");
-  document.getElementById("noticeItems").innerHTML = noticeData.html || "<li>공지 내용이 없습니다.</li>";
+
+  const wrap = document.getElementById("noticeItems");
+  if (!wrap) return;
+
+  const html = (noticeData.html || "").trim();
+
+  if (!html) {
+    wrap.innerHTML = "<li>공지 내용이 없습니다.</li>";
+    return;
+  }
+
+  const hasBlockTags = /<(li|ul|ol|p|div|h[1-6]|blockquote)/i.test(html);
+  if (hasBlockTags) {
+    wrap.innerHTML = html;
+  } else {
+    wrap.innerHTML = `<li>${html}</li>`;
+  }
 }
 
 function ensureDynamicPanels() {
@@ -1280,7 +1327,7 @@ function ensureDynamicPanels() {
     if (!pageContents[panelKey]) {
       pageContents[panelKey] = {
         majorTitle: menu.title || "메뉴",
-        html: `<p class="body-line">내용을 입력하세요.</p>`
+        html: `<p>내용을 입력하세요.</p>`
       };
     }
   });
@@ -1334,7 +1381,7 @@ function renderAllContents() {
     const panelKey = getDynamicPanelKey(menu);
     const config = pageContents[panelKey] || {
       majorTitle: menu.title || "메뉴",
-      html: `<p class="body-line">내용을 입력하세요.</p>`
+      html: `<p>내용을 입력하세요.</p>`
     };
 
     section.innerHTML = `
@@ -1351,29 +1398,26 @@ function renderAllContents() {
 }
 
 function initEditors() {
+  const fullToolbar = [
+    [{ size: ["small", false, "large", "huge"] }],
+    ["bold", "italic", "underline"],
+    [{ color: [] }, { background: [] }],
+    [{ list: "ordered" }, { list: "bullet" }],
+    [{ align: [] }],
+    ["link", "clean"]
+  ];
+
   noticeEditor = new Quill("#noticeEditor", {
     theme: "snow",
     modules: {
-      toolbar: [
-        [{ size: ["small", false, "large", "huge"] }],
-        ["bold", "italic", "underline"],
-        [{ color: [] }, { background: [] }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        ["link", "clean"]
-      ]
+      toolbar: fullToolbar
     }
   });
 
   contentEditor = new Quill("#contentEditor", {
     theme: "snow",
     modules: {
-      toolbar: [
-        ["bold", "italic", "underline"],
-        [{ color: [] }, { background: [] }],
-        [{ list: "ordered" }, { list: "bullet" }],
-        [{ align: [] }],
-        ["link", "clean"]
-      ]
+      toolbar: fullToolbar
     }
   });
 }
@@ -1558,7 +1602,7 @@ window.openContentEditor = function(panelKey) {
   if (!pageContents[panelKey]) {
     pageContents[panelKey] = {
       majorTitle: getPanelTitleByKey(panelKey),
-      html: `<p class="body-line">내용을 입력하세요.</p>`
+      html: `<p>내용을 입력하세요.</p>`
     };
   }
 
