@@ -81,11 +81,11 @@ body {
   background:transparent;
   color:#334155;
   text-align:left;
-  padding:12px 14px;
+  padding:10px 12px;
   border-radius:12px;
   cursor:pointer;
-  font-size:14px;
-  line-height:1.4;
+  font-size:13px;
+  line-height:1.3;
   transition:all .15s ease;
 }
 .nav-item:hover {
@@ -156,17 +156,20 @@ body {
 }
 
 .nav-item-green,
-.nav-item-purple {
+.nav-item-purple,
+.nav-item-highlight {
   width:auto;
   min-width:unset;
   display:inline-flex;
   justify-content:center;
   align-items:center;
-  padding:8px 14px;
+  padding:6px 10px;
   text-align:center;
   white-space:nowrap;
-  border-radius:999px;
+  border-radius:12px;
   font-weight:700;
+  font-size:12px;
+  line-height:1.2;
 }
 
 .nav-item-green {
@@ -219,11 +222,9 @@ body {
   background:#f5f3ff;
   color:#6d28d9;
   border:1px solid #ddd6fe;
-  border-radius:14px;
+  box-shadow:0 4px 10px rgba(109,40,217,0.06);
+  margin-bottom:0;
   font-weight:800;
-  padding:13px 14px;
-  box-shadow:0 6px 16px rgba(109,40,217,0.08);
-  margin-bottom:6px;
 }
 .nav-item-highlight:hover {
   background:#ede9fe;
@@ -1377,10 +1378,11 @@ function renderMenus() {
 
   const badgeWrap = document.createElement("div");
   badgeWrap.style.display = "flex";
-  badgeWrap.style.gap = "10px";
-  badgeWrap.style.flexWrap = "wrap";
+  badgeWrap.style.gap = "6px";
+  badgeWrap.style.flexWrap = "nowrap";       // 🔥 변경
+  badgeWrap.style.overflowX = "auto";        // 🔥 추가
   badgeWrap.style.justifyContent = "flex-start";
-  badgeWrap.style.marginBottom = "8px";
+  badgeWrap.style.marginBottom = "4px";
 
   orderedBottomMenus.forEach(menu => {
     badgeWrap.appendChild(createMenuButton(menu));
