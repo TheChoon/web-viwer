@@ -1316,7 +1316,7 @@ function createMenuButton(menu, isChild = false) {
     btn.textContent = "📅 " + (menu.title || "스케줄");
   } else if ((menu.title || "").includes("소액")) {
     btn.classList.add("nav-item-highlight");
-    btn.textContent = "🔍 " + (menu.title || "소액조회");
+    btn.textContent = "🔍 소액조회");
   } else {
     btn.textContent = menu.title || "메뉴";
   }
@@ -1629,7 +1629,17 @@ function renderMenuTable() {
         <input data-field="location" data-index="${realIndex}" value="${escapeHtml(isFixedMenu ? "bottom" : (menu.location || "top"))}" ${isFixedMenu ? "readonly" : ""}>
       </td>
       <td>
-        <input data-field="title" data-index="${realIndex}" value="${escapeHtml(isWork ? "Project 분배표" : isSchedule ? "스케줄" : (menu.title || ""))}" ${isFixedMenu ? "readonly" : ""}>
+        <td>
+  <input data-field="title" data-index="${realIndex}"
+    value="${escapeHtml(
+      isWork ? "분배표" :
+      isSchedule ? "스케줄" :
+      (menu.title || "").includes("소액") ? "소액조회" :
+      (menu.title || "")
+    )}"
+    ${isFixedMenu ? "readonly" : ""}
+  >
+</td>
       </td>
       <td>
         <input data-field="panelIndex" data-index="${realIndex}" value="${escapeHtml(String(isWork ? 11 : isSchedule ? 12 : (menu.panelIndex ?? "")))}" ${isFixedMenu ? "readonly" : ""}>
