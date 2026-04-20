@@ -1265,20 +1265,34 @@ function ensureFixedMenus() {
 
   menuData = menuData.filter(menu => {
     const title = (menu.title || "").trim();
-    if ((title === "Project 분배표" || title === "Project분배표") && Number(menu.panelIndex) !== 11) return false;
+    if ((title === "Project 분배표" || title === "Project분배표" || title === "분배표") && Number(menu.panelIndex) !== 11) return false;
     if (title === "스케줄" && Number(menu.panelIndex) !== 12) return false;
     return true;
   });
 
-  const hasWorkMenu = menuData.some(menu => Number(menu.panelIndex) === 11 || (menu.title || "").trim() === "Project 분배표");
-  const hasScheduleMenu = menuData.some(menu => Number(menu.panelIndex) === 12 || (menu.title || "").trim() === "스케줄");
+  const hasWorkMenu = menuData.some(menu =>
+    Number(menu.panelIndex) === 11 ||
+    (menu.title || "").trim() === "Project 분배표" ||
+    (menu.title || "").trim() === "Project분배표" ||
+    (menu.title || "").trim() === "분배표"
+  );
+
+  const hasScheduleMenu = menuData.some(menu =>
+    Number(menu.panelIndex) === 12 ||
+    (menu.title || "").trim() === "스케줄"
+  );
 
   if (!hasWorkMenu) {
     menuData.push(fixedWorkMenu);
   } else {
     menuData = menuData.map(menu => {
       const title = (menu.title || "").trim();
-      if (Number(menu.panelIndex) === 11 || title === "Project 분배표") return fixedWorkMenu;
+      if (
+        Number(menu.panelIndex) === 11 ||
+        title === "Project 분배표" ||
+        title === "Project분배표" ||
+        title === "분배표"
+      ) return fixedWorkMenu;
       return menu;
     });
   }
@@ -1293,7 +1307,6 @@ function ensureFixedMenus() {
     });
   }
 }
-
 function createMenuButton(menu, isChild = false) {
   const btn = document.createElement("button");
   btn.className = "nav-item";
@@ -1306,20 +1319,20 @@ function createMenuButton(menu, isChild = false) {
   }
 
   if (Number(menu.panelIndex) === 0) {
-    btn.classList.add("nav-item-notice");
-    btn.textContent = "📢 " + (menu.title || "공지사항");
-  } else if (Number(menu.panelIndex) === 11) {
-    btn.classList.add("nav-item-highlight");
-    btn.textContent = "📊 " + (menu.title || "분배표");
-  } else if (Number(menu.panelIndex) === 12) {
-    btn.classList.add("nav-item-highlight");
-    btn.textContent = "📅 " + (menu.title || "스케줄");
-  } else if ((menu.title || "").includes("소액")) {
-    btn.classList.add("nav-item-highlight");
-    btn.textContent = "🔍 소액조회");
-  } else {
-    btn.textContent = menu.title || "메뉴";
-  }
+      btn.classList.add("nav-item-notice");
+      btn.textContent = "📢 " + (menu.title || "공지사항");
+    } else if (Number(menu.panelIndex) === 11) {
+      btn.classList.add("nav-item-highlight");
+      btn.textContent = "📊 분배표";
+    } else if (Number(menu.panelIndex) === 12) {
+      btn.classList.add("nav-item-highlight");
+      btn.textContent = "📅 스케줄";
+    } else if ((menu.title || "").includes("소액")) {
+      btn.classList.add("nav-item-highlight");
+      btn.textContent = "🔍 소액조회";
+    } else {
+      btn.textContent = menu.title || "메뉴";
+    }
 
   btn.addEventListener("click", () => {
     if (menu.kind === "iframe" && menu.url) {
@@ -1620,7 +1633,11 @@ function renderMenuTable() {
     const realIndex = menuData.findIndex(item => item === menu);
     const tr = document.createElement("tr");
     const titleTrim = (menu.title || "").trim();
-    const isWork = Number(menu.panelIndex) === 11 || titleTrim === "Project 분배표";
+     const isWork =
+    Number(menu.panelIndex) === 11 ||
+    titleTrim === "Project 분배표" ||
+    titleTrim === "Project분배표" ||
+    titleTrim === "분배표";
     const isSchedule = Number(menu.panelIndex) === 12 || titleTrim === "스케줄";
     const isFixedMenu = isWork || isSchedule;
 
@@ -1628,19 +1645,17 @@ function renderMenuTable() {
       <td>
         <input data-field="location" data-index="${realIndex}" value="${escapeHtml(isFixedMenu ? "bottom" : (menu.location || "top"))}" ${isFixedMenu ? "readonly" : ""}>
       </td>
-      <td>
-        <td>
-  <input data-field="title" data-index="${realIndex}"
-    value="${escapeHtml(
-      isWork ? "분배표" :
-      isSchedule ? "스케줄" :
-      (menu.title || "").includes("소액") ? "소액조회" :
-      (menu.title || "")
-    )}"
-    ${isFixedMenu ? "readonly" : ""}
-  >
-</td>
-      </td>
+     <td>
+      <input data-field="title" data-index="${realIndex}"
+        value="${escapeHtml(
+          isWork ? "분배표" :
+          isSchedule ? "스케줄" :
+          (menu.title || "").includes("소액") ? "소액조회" :
+          (menu.title || "")
+        )}"
+        ${isFixedMenu ? "readonly" : ""}
+      >
+    </td>
       <td>
         <input data-field="panelIndex" data-index="${realIndex}" value="${escapeHtml(String(isWork ? 11 : isSchedule ? 12 : (menu.panelIndex ?? "")))}" ${isFixedMenu ? "readonly" : ""}>
       </td>
@@ -1728,10 +1743,21 @@ function syncMenuDataFromTable() {
     const rawLocation = getVal("location");
     const rawUrl = getVal("url");
 
-    const isWorkAllocation = rawTitle === "Project 분배표" || Number(rawPanelIndex) === 11 || (prev.title || "").trim() === "Project 분배표";
-    const isSchedule = rawTitle === "스케줄" || Number(rawPanelIndex) === 12 || (prev.title || "").trim() === "스케줄";
+    const isWorkAllocation =
+  rawTitle === "Project 분배표" ||
+  rawTitle === "Project분배표" ||
+  rawTitle === "분배표" ||
+  Number(rawPanelIndex) === 11 ||
+  (prev.title || "").trim() === "Project 분배표" ||
+  (prev.title || "").trim() === "Project분배표" ||
+  (prev.title || "").trim() === "분배표";
 
-    const title = isWorkAllocation ? "Project 분배표" : isSchedule ? "스케줄" : (rawTitle || prev.title || "");
+const isSchedule =
+  rawTitle === "스케줄" ||
+  Number(rawPanelIndex) === 12 ||
+  (prev.title || "").trim() === "스케줄";
+
+const title = isWorkAllocation ? "분배표" : isSchedule ? "스케줄" : (rawTitle || prev.title || "");
     const panelIndex = isWorkAllocation ? 11 : isSchedule ? 12 : (rawPanelIndex === "" ? Number(prev.panelIndex || 0) : Number(rawPanelIndex));
     const location = (isWorkAllocation || isSchedule) ? "bottom" : (rawLocation || prev.location || "top");
 
