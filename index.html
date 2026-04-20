@@ -1127,7 +1127,7 @@ const defaultMenus = [
   { title: "열람자료Q&A", panelIndex: 8, location: "top", kind: "panel" },
   { title: "기계기구Q&A", panelIndex: 9, location: "top", kind: "panel" },
   { title: "소액조회", panelIndex: 10, location: "bottom", kind: "iframe", url: "주택상가 소액.html" },
-  { title: "분배표", panelIndex: 11, location: "bottom", kind: "panel", theme: "purple" },
+  { title: "", panelIndex: 11, location: "bottom", kind: "panel", theme: "purple" },
   { title: "스케줄", panelIndex: 12, location: "bottom", kind: "panel", theme: "purple" }
 ];
 
@@ -1249,7 +1249,7 @@ function getDynamicPanelKey(menu) {
 
 function ensureFixedMenus() {
   const fixedWorkMenu = {
-    title: "Project 분배표",
+    title: "분배표",
     panelIndex: 11,
     location: "bottom",
     kind: "panel",
@@ -1310,13 +1310,13 @@ function createMenuButton(menu, isChild = false) {
     btn.textContent = "📢 " + (menu.title || "공지사항");
   } else if (Number(menu.panelIndex) === 11) {
     btn.classList.add("nav-item-highlight");
-    btn.textContent = "📊 " + (menu.title || "Project 분배표");
+    btn.textContent = "📊 " + (menu.title || "분배표");
   } else if (Number(menu.panelIndex) === 12) {
     btn.classList.add("nav-item-highlight");
     btn.textContent = "📅 " + (menu.title || "스케줄");
   } else if ((menu.title || "").includes("소액")) {
     btn.classList.add("nav-item-highlight");
-    btn.textContent = "🔍 " + (menu.title || "소액 조회");
+    btn.textContent = "🔍 " + (menu.title || "소액조회");
   } else {
     btn.textContent = menu.title || "메뉴";
   }
@@ -1367,9 +1367,9 @@ function renderMenus() {
 
   const orderedBottomMenus = [...bottomMenus].sort((a, b) => {
     const order = {
-      "Project 분배표": 0,
+      "분배표": 0,
       "스케줄": 1,
-      "주택·상가 소액 조회": 2
+      "소액조회": 2
     };
     const av = order[a.title] ?? 99;
     const bv = order[b.title] ?? 99;
