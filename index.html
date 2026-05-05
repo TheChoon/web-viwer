@@ -2516,46 +2516,53 @@ function initCalendar() {
   if (!calendarEl || calendar) return;
 
   calendar = new FullCalendar.Calendar(calendarEl, {
-    locale: "ko",
-    initialView: "dayGridMonth",
-    height: "auto",
-    headerToolbar: {
-      left: "prev,next today",
-      center: "title",
-      right: "dayGridMonth,timeGridWeek,timeGridDay"
-    },
-    buttonText: {
-      today: "오늘",
-      month: "월",
-      week: "주",
-      day: "일"
-    },
-    selectable: true,
-    editable: false,
-    dayMaxEvents: true,
-    dateClick(info) {
-      openScheduleEditor({
-        date: info.dateStr,
-        startTime: "",
-        endTime: "",
-        title: "",
-        memo: ""
-      });
-    },
-    eventClick(info) {
-      const ext = info.event.extendedProps || {};
-      openScheduleEditor({
-        id: info.event.id,
-        title: info.event.title,
-        date: ext.date || (info.event.startStr ? info.event.startStr.slice(0, 10) : ""),
-        startTime: ext.startTime || "",
-        endTime: ext.endTime || "",
-        memo: ext.memo || "",
-        color: info.event.backgroundColor || "#3b82f6"
-      });
-    },
-    events: []
-  });
+  locale: "ko",
+  initialView: "dayGridMonth",
+  height: "auto",
+  headerToolbar: {
+    left: "prev,next today",
+    center: "title",
+    right: "dayGridMonth,timeGridWeek,timeGridDay"
+  },
+  buttonText: {
+    today: "오늘",
+    month: "월",
+    week: "주",
+    day: "일"
+  },
+  selectable: true,
+  editable: false,
+
+  // 하루 일정 3개까지 3줄로 표시
+  dayMaxEvents: 3,
+  dayMaxEventRows: 3,
+  expandRows: true,
+
+  dateClick(info) {
+    openScheduleEditor({
+      date: info.dateStr,
+      startTime: "",
+      endTime: "",
+      title: "",
+      memo: ""
+    });
+  },
+
+  eventClick(info) {
+    const ext = info.event.extendedProps || {};
+    openScheduleEditor({
+      id: info.event.id,
+      title: info.event.title,
+      date: ext.date || (info.event.startStr ? info.event.startStr.slice(0, 10) : ""),
+      startTime: ext.startTime || "",
+      endTime: ext.endTime || "",
+      memo: ext.memo || "",
+      color: info.event.backgroundColor || "#3b82f6"
+    });
+  },
+
+  events: []
+});
 
   calendar.render();
 }
